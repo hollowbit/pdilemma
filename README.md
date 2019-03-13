@@ -1,5 +1,18 @@
 # Pdilemma
 
+This is a basic Prisoner's Dilemma game, all played online with multiple clients! I started this project to learn how Elixir and Phoenix work.
+
+## Planned Features
+
+I'm not done learning yet! Here are some things I want to add to learn more:
+
+- Private rooms: using custom and generated room codes
+- Joining rooms mid-game doesn't cause issues
+- Security: prevent players you don't want from join and interfering with your private room
+- Nicer UI: It's very ugly right now (proof of concept)
+
+## Try it yourself
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
@@ -7,13 +20,3 @@ To start your Phoenix server:
   * Start Phoenix endpoint with `mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix

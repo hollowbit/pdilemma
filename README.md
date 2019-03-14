@@ -8,14 +8,14 @@ This repository is more of a sandbox so the code is not very nice or well design
 
 I'm not done learning yet! Here are some things I want to add to learn more:
 
-[ x ] Private rooms: using custom and generated room codes
+- [x] Private rooms: using custom and generated room codes
 
-[ ] Joining rooms mid-game doesn't cause issues
+- [ ] Joining rooms mid-game doesn't cause issues
 
-[ ] Security: prevent players you don't want from 
+- [ ] Security: prevent players you don't want from 
 join and interfering with your private room
 
-[ ] Nicer UI: It's very ugly right now (proof of concept)
+- [ ] Nicer UI: It's very ugly right now (proof of concept)
 
 ## Try it yourself
 

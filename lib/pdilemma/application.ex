@@ -9,10 +9,9 @@ defmodule Pdilemma.Application do
     # List all child processes to be supervised
     children = [
       # Start the endpoint when the application starts
-      PdilemmaWeb.Endpoint,
+      PdilemmaWeb.Endpoint
       # Starts a worker by calling: Pdilemma.Worker.start_link(arg)
       # {Pdilemma.Worker, arg},
-      {Pdilemma.Game, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

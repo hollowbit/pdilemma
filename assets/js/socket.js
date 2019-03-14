@@ -61,94 +61,119 @@ let messageBox = document.getElementById("message-box");
 let timeBox = document.getElementById("time-box");
 let startgameButton = document.getElementById("start-game");
 let teamButton = document.getElementById("team-button");
+let hostGameButton = document.getElementById("host-game");
+let joinGameButton = document.getElementById("join-game");
 
 let team = "t1";
+let roomId;
+
+
+hostGameButton.onclick = (event) => {
+  event.preventDefault();
+
+  roomId = prompt("Please enter a room id");
+
+  const channelHost = socket.channel(`host:${roomId}`);
+  channelHost.join()
+    .receive("ok", resp => { console.log("Started room: ", roomId); })
+    .receive("error", resp => { console.log(`Could not create room ${roomId}: `, resp.reason); });
+
+  channelHost.on("player_joined", msg => {
+    console.log(`Player joined: ${msg.player_name}`);
+  });
+
+  startgameButton.onclick = (event) => {
+    event.preventDefault();
+    channelHost.push("start_game", {});
+  };
+};
 
 // Establish connections to channels
 
-const channelUpdate = socket.channel("game:update", {});
-channelUpdate.join()
-  .receive("ok", resp => { console.log("Joined successfully game:update", resp) })
-  .receive("error", resp => { console.log("Unable to join game:update", resp) })
+joinGameButton.onclick = (event) => {
+  event.preventDefault();
 
-channelUpdate.on("game_start", _msg => {
-  messageBox.innerHTML = "A new game is about to start..."
-  teamButton.style.display = "none"; // hide team button on game start
-});
+  if (!roomId) {
+    roomId = prompt("Please enter a room id");
+  }
 
-channelUpdate.on("game_over", msg => {
-  messageBox.innerHTML = `Winner: ${msg.winner} (${msg.wscore}), Loser: ${msg.loser} (${msg.lscore})`;
-  teamButton.style.display = "inline"; // show team button again
-});
+  const name = prompt("Please enter a name");
 
-channelUpdate.on("round_start", msg => {
-  messageBox.innerHTML = `Round ${msg.round}: ${msg.message}`;
-});
+  const channelPlayer = socket.channel(`player:${roomId}`, {name});
+  channelPlayer.join()
+    .receive("ok", resp => { console.log("Joined successfully room as player", resp) })
+    .receive("error", resp => { console.log(`Unable to join room ${roomId}`, resp.reason) })
 
-channelUpdate.on("round_end", msg => {
-  messageBox.innerHTML = `Team 1 selected ${msg.selection_team1} and got ${msg.score_team1} (New Total: ${msg.total_team1}) AND Team 2 selected ${msg.selection_team2} and got ${msg.score_team2} (New Total: ${msg.total_team2})`;
-});
+  channelPlayer.on("game_start", _msg => {
+    messageBox.innerHTML = "A new game is about to start..."
+    teamButton.style.display = "none"; // hide team button on game start
+  });
 
-const channelTime = socket.channel("game:timer", {});
-channelTime.join()
-  .receive("ok", resp => { console.log("Joined successfully game:time", resp) })
-  .receive("error", resp => { console.log("Unable to join game:time", resp) })
+  channelPlayer.on("game_over", msg => {
+    messageBox.innerHTML = `Winner: ${msg.winner} (${msg.wscore}), Loser: ${msg.loser} (${msg.lscore})`;
+    teamButton.style.display = "inline"; // show team button again
+  });
 
-channelTime.on("new_time", msg => {
-  timeBox.innerHTML = `Time Left: ${msg.time}s...`;
-});
+  channelPlayer.on("round_start", msg => {
+    messageBox.innerHTML = `Round ${msg.round}: ${msg.message}`;
+  });
 
-const channelSelection = socket.channel("game:selection", {});
-channelSelection.join()
-  .receive("ok", resp => { console.log("Joined successfully game:selection", resp) })
-  .receive("error", resp => { console.log("Unable to join game:selection", resp) })
+  channelPlayer.on("round_end", msg => {
+    messageBox.innerHTML = `Team 1 selected ${msg.selection_team1} and got ${msg.score_team1} (New Total: ${msg.total_team1}) AND Team 2 selected ${msg.selection_team2} and got ${msg.score_team2} (New Total: ${msg.total_team2})`;
+  });
 
-channelSelection.on("selection_changed", msg => {
-  if (msg.team == team) {
-    if (msg.selection == "X") {
-      xButton.classList.add("selected");
-      yButton.classList.remove("selected");
-    } else {
-      yButton.classList.add("selected");
-      xButton.classList.remove("selected");
+  channelPlayer.on("selection_changed", msg => {
+    if (msg.team == team) {
+      if (msg.selection == "X") {
+        xButton.classList.add("selected");
+        yButton.classList.remove("selected");
+      } else {
+        yButton.classList.add("selected");
+        xButton.classList.remove("selected");
+      }
     }
-  }
-});
-
-
-// Handle ui events
-
-teamButton.onclick = (event) => {
-  event.preventDefault();
-
-  if (team == "t1") {
-    team = "t2";
-  } else {
-    team = "t1";
-  }
-
-  teamButton.innerHTML = team;
-};
-
-xButton.onclick = (event) => {
-  event.preventDefault();
-  channelUpdate.push("round_selection", {
-    team,
-    selection: "X"
   });
-};
 
-yButton.onclick = (event) => {
-  event.preventDefault();
-  channelUpdate.push("round_selection", {
-    team,
-    selection: "Y"
+  const channelTimer = socket.channel(`timer:${roomId}`, {});
+  channelTimer.join()
+    .receive("ok", resp => { console.log("Joined successfully room's timer", resp) })
+    .receive("error", resp => { console.log(`Unable to join timer:${roomId}`, resp.reason) })
+
+  channelTimer.on("new_time", msg => {
+    timeBox.innerHTML = `Time Left: ${msg.time}s...`;
   });
-}
 
-startgameButton.onclick = (event) => {
-  event.preventDefault();
-  channelUpdate.push("start_game", {});
+
+  // Handle ui events
+
+  teamButton.onclick = (event) => {
+    event.preventDefault();
+
+    if (team == "t1") {
+      team = "t2";
+    } else {
+      team = "t1";
+    }
+
+    teamButton.innerHTML = team;
+  };
+
+  xButton.onclick = (event) => {
+    event.preventDefault();
+    channelPlayer.push("round_selection", {
+      team,
+      selection: "X"
+    });
+  };
+
+  yButton.onclick = (event) => {
+    event.preventDefault();
+    channelPlayer.push("round_selection", {
+      team,
+      selection: "Y"
+    });
+  }
+
 };
 
 export default socket

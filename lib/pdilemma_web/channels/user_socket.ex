@@ -3,7 +3,9 @@ defmodule PdilemmaWeb.UserSocket do
 
   ## Channels
   # channel "room:*", PdilemmaWeb.RoomChannel
-  channel "game:*", PdilemmaWeb.GameChannel
+  channel "host:*", PdilemmaWeb.GameChannel
+  channel "timer:*", PdilemmaWeb.GameChannel
+  channel "player:*", PdilemmaWeb.GameChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

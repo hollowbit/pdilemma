@@ -2,32 +2,34 @@ defmodule Pdilemma.Game do
   use GenServer
   require Logger
 
-  def start_link(args) do
-    GenServer.start_link __MODULE__, %{}
+  def start_link(%{room_id: room_id}) do
+    GenServer.start_link __MODULE__, %{room_id: room_id}, name: {:global, room_id}
   end
 
   ## Game Server ##
 
-  def init(_state) do
-    PdilemmaWeb.Endpoint.subscribe "game:start", []
-    PdilemmaWeb.Endpoint.subscribe "game:action", []
+  def init(%{room_id: room_id}) do
+    PdilemmaWeb.Endpoint.subscribe "game:#{room_id}", []
+    
+    # initialize state
     state = %{
+      room_id: room_id,
       timeout_ref: nil
     }
     {:ok, state}
   end
 
-  # game:start -> start_game
-  def handle_info(%{event: "start_game"}, state = %{timeout_ref: timeout_ref}) do
+  # game:* -> start_game
+  def handle_info(%{event: "start_game"}, state = %{timeout_ref: timeout_ref, room_id: room_id}) do
     # end current timer, if exists.
     cancel_timeout(timeout_ref)
 
     # broadcast that new game is starting
-    broadcast_gamestart()
+    broadcast_gamestart(room_id)
 
     # reset selections
-    broadcast_selectionchange(:t1, :X)
-    broadcast_selectionchange(:t2, :X)
+    broadcast_selectionchange(:t1, :X, room_id)
+    broadcast_selectionchange(:t2, :X, room_id)
 
     # start timeout
     new_state = set_timeout(5, state)
@@ -45,7 +47,7 @@ defmodule Pdilemma.Game do
   ## Timer Updates ##
 
   # end current round
-  def handle_info({:update_time, 0}, state = %{round_started: true, round: round, selection_t1: s1, selection_t2: s2, rounds: rounds}) do
+  def handle_info({:update_time, 0}, state = %{round_started: true, round: round, selection_t1: s1, selection_t2: s2, rounds: rounds, room_id: room_id}) do
     # commit selections for this round
     round_result = %{t1: s1, t2: s2, round: round}
     updated_rounds = rounds ++ [round_result]
@@ -59,7 +61,7 @@ defmodule Pdilemma.Game do
     team2_totalscore = calculate_score(updated_rounds, :t2)
 
     # broadcast round end event to clients
-    broadcast_roundend(team1_score, team2_score, team1_totalscore, team2_totalscore, s1, s2)
+    broadcast_roundend(team1_score, team2_score, team1_totalscore, team2_totalscore, s1, s2, room_id)
 
     # start timer until next round
     new_state = set_timeout(5, state)
@@ -73,7 +75,7 @@ defmodule Pdilemma.Game do
   end
 
   # gameover
-  def handle_info({:update_time, 0}, state = %{round_started: false, round: 10, score: %{t1: t1_score, t2: t2_score}}) do
+  def handle_info({:update_time, 0}, state = %{round_started: false, round: 10, score: %{t1: t1_score, t2: t2_score}, room_id: room_id}) do
     # set winner and loser
     { winner, loser, wscore, lscore } = cond do
       t1_score > t2_score -> {:t1, :t2, t1_score, t2_score}
@@ -82,7 +84,7 @@ defmodule Pdilemma.Game do
     end
 
     # broadcast game result
-    broadcast_gameover(winner, loser, wscore, lscore)
+    broadcast_gameover(winner, loser, wscore, lscore, room_id)
 
     # update final state of game
     {:noreply, Map.merge(state, %{
@@ -92,13 +94,13 @@ defmodule Pdilemma.Game do
   end
 
   # start next round
-  def handle_info({:update_time, 0}, state = %{round_started: false, round: round}) do
+  def handle_info({:update_time, 0}, state = %{round_started: false, round: round, room_id: room_id}) do
     # update round
     next_round = round + 1
 
     # broadcast that round is starting
     message = get_round_message(next_round)
-    broadcast_roundstart(next_round, message)
+    broadcast_roundstart(next_round, message, room_id)
 
     # set round timeout
     time = get_round_time(next_round)
@@ -122,9 +124,9 @@ defmodule Pdilemma.Game do
   end
 
   # game:action -> round_selection
-  def handle_info(%{event: "round_selection", payload: %{"team" => team, "selection" => selection}}, state) do
+  def handle_info(%{event: "round_selection", payload: %{"team" => team, "selection" => selection}}, state = %{room_id: room_id}) do
     # notify that selection was changed
-    broadcast_selectionchange(team, selection)
+    broadcast_selectionchange(team, selection, room_id)
 
     # get selection atom
     selection_atom = case selection do
@@ -145,18 +147,33 @@ defmodule Pdilemma.Game do
     end
   end
 
+  ## Host ##
+
+  def handle_info(%{event: "player_joined", payload: %{name: name}}, state = %{room_id: room_id}) do
+    # tell the host that a player has joined
+    broadcast_playerjoin name, room_id
+
+    # TODO authenticate player
+
+    {:noreply, state}
+  end
+
   ## Private Broadcast Functions ##
 
-  defp broadcast_time(time) do
-    PdilemmaWeb.Endpoint.broadcast! "game:timer", "new_time", %{time: time}
+  defp broadcast_playerjoin(player_name, room_id) do
+    PdilemmaWeb.Endpoint.broadcast! "host:#{room_id}", "player_join", %{player_name: player_name}
   end
 
-  defp broadcast_gamestart() do
-    PdilemmaWeb.Endpoint.broadcast! "game:update", "game_start", %{}
+  defp broadcast_time(time, room_id) do
+    PdilemmaWeb.Endpoint.broadcast! "timer:#{room_id}", "new_time", %{time: time}
   end
 
-  defp broadcast_gameover(winner, loser, wscore, lscore) do
-    PdilemmaWeb.Endpoint.broadcast! "game:update", "game_over", %{
+  defp broadcast_gamestart(room_id) do
+    PdilemmaWeb.Endpoint.broadcast! "player:#{room_id}", "game_start", %{}
+  end
+
+  defp broadcast_gameover(winner, loser, wscore, lscore, room_id) do
+    PdilemmaWeb.Endpoint.broadcast! "player:#{room_id}", "game_over", %{
       winner: winner,
       loser: loser,
       wscore: wscore,
@@ -164,15 +181,15 @@ defmodule Pdilemma.Game do
     }
   end
 
-  defp broadcast_roundstart(round, message) do
-    PdilemmaWeb.Endpoint.broadcast! "game:update", "round_start", %{
+  defp broadcast_roundstart(round, message, room_id) do
+    PdilemmaWeb.Endpoint.broadcast! "player:#{room_id}", "round_start", %{
       round: round,
       message: message
     }
   end
 
-  defp broadcast_roundend(score_team1, score_team2, total_team1, total_team2, selection_team1, selection_team2) do
-    PdilemmaWeb.Endpoint.broadcast! "game:update", "round_end", %{
+  defp broadcast_roundend(score_team1, score_team2, total_team1, total_team2, selection_team1, selection_team2, room_id) do
+    PdilemmaWeb.Endpoint.broadcast! "player:#{room_id}", "round_end", %{
       score_team1: score_team1,
       score_team2: score_team2,
       total_team1: total_team1,
@@ -182,8 +199,8 @@ defmodule Pdilemma.Game do
     }
   end
 
-  defp broadcast_selectionchange(team, selection) do
-    PdilemmaWeb.Endpoint.broadcast! "game:selection", "selection_changed", %{
+  defp broadcast_selectionchange(team, selection, room_id) do
+    PdilemmaWeb.Endpoint.broadcast! "player:#{room_id}", "selection_changed", %{
       team: team,
       selection: selection
     }
@@ -199,12 +216,12 @@ defmodule Pdilemma.Game do
     get_round_score(head, team) + calculate_score(tail, team)
   end
 
-  defp set_timeout(time, state) do
+  defp set_timeout(time, state = %{room_id: room_id}) do
     # set timeout process
     timeout_ref = Process.send_after self(), {:update_time, time}, 1_000
 
     # notify clients of time update
-    broadcast_time(time)
+    broadcast_time(time, room_id)
 
     # return updated state
     Map.merge(state, %{

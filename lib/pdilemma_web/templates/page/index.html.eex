@@ -1,5 +1,7 @@
 <div class="game">
   <h1>Prisoner's Dilemma</h1>
+  <button id="host-game">Host Game</button>
+  <button id="join-game">Join Game</button>
   <button id="team-button">t1</button>
   <button id="x" class="selected">X</button>
   <button id="y">Y</button>

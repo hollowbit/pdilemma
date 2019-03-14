@@ -3,16 +3,29 @@ defmodule PdilemmaWeb.GameChannel do
 
   ## Channel Joins ##
 
-  def join("game:update", _msg, socket) do
-    {:ok, socket}
+  def join("player:" <> room_id, msg = %{"name" => name}, socket) do
+    # make sure the room exists
+    case :global.whereis_name(room_id) do
+      :undefined -> {:error, %{reason: "This room doesn't exist"}}
+      _ ->
+        PdilemmaWeb.Endpoint.broadcast "game:#{room_id}", "player_joined", %{name: name}
+        {:ok, socket}
+    end
   end
 
-  def join("game:selection", _msg, socket) do
-    {:ok, socket}
+  def join("host:" <> room_id, _msg, socket) do
+    case Pdilemma.Game.start_link(%{room_id: room_id}) do
+      {:ok, pid} -> {:ok, %{reason: "welcome host"}, socket}
+      {:error, {:already_started, pid}} -> {:error, %{reason: "room id is taken"}}
+    end
   end
 
-  def join("game:timer", _msg, socket) do
-    {:ok, socket}
+  def join("timer:" <> room_id, _msg, socket) do
+    # make sure the room exists
+    case :global.whereis_name(room_id) do
+      :undefined -> {:error, %{reason: "This room doesn't exist"}}
+      _ -> {:ok, socket}
+    end
   end
 
   ## Publish Events ##
@@ -47,15 +60,20 @@ defmodule PdilemmaWeb.GameChannel do
     {:noreply, socket}
   end
 
-  ## Subscribe Events ##
-
-  def handle_in("round_selection", msg, socket) do
-    PdilemmaWeb.Endpoint.broadcast "game:action", "round_selection", msg
+  def handle_in("player_joined", msg, socket) do
+    push socket, "player_joined", msg
     {:noreply, socket}
   end
 
-  def handle_in("start_game", msg, socket) do
-    PdilemmaWeb.Endpoint.broadcast "game:start", "start_game", msg
+  ## Subscribe Events ##
+
+  def handle_in("round_selection", msg, socket = %{topic: "player:" <> room_id}) do
+    PdilemmaWeb.Endpoint.broadcast "game:#{room_id}", "round_selection", msg
+    {:noreply, socket}
+  end
+
+  def handle_in("start_game", msg, socket = %{topic: "host:" <> room_id}) do
+    PdilemmaWeb.Endpoint.broadcast "game:#{room_id}", "start_game", msg
     {:noreply, socket}
   end
 

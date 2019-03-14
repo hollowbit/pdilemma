@@ -4,7 +4,7 @@ This is a basic Prisoner's Dilemma game, all played online with multiple clients
 
 This repository is more of a sandbox so the code is not very nice or well designed right now. I plan on making a better designed version in the future.
 
-## Planned Features
+## ToDo List
 
 I'm not done learning yet! Here are some things I want to add to learn more:
 

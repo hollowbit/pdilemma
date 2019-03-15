@@ -101,7 +101,33 @@ joinGameButton.onclick = (event) => {
 
   const channelPlayer = socket.channel(`player:${roomId}`, {name});
   channelPlayer.join()
-    .receive("ok", resp => { console.log("Joined successfully room as player", resp) })
+    .receive("ok", resp => { 
+      console.log("Joined successfully room as player", resp)
+
+      // if response has data, set it in round
+      if (resp.round_message) {
+        messageBox.innerHTML = resp.message;
+
+        // get selection for team
+        let teamSelection = null;
+        if (team == "t1") {
+          teamSelection = resp.selection_team1;
+        } else {
+          teamSelection = resp.selection_team2;
+        }
+
+        if (teamSelection == "X") {
+          xButton.classList.add("selected");
+          yButton.classList.remove("selected");
+        } else {
+          yButton.classList.add("selected");
+          xButton.classList.remove("selected");
+        }
+      } else if (resp.team1_score) {
+        messageBox.innerHTML = `Team 1 selected ${resp.selection_team1} and got ${resp.team1_score} (New Total: ${resp.team1_totalscore}) AND Team 2 selected ${resp.selection_team2} and got ${resp.team2_score} (New Total: ${resp.team2_totalscore})`;
+      }
+
+    })
     .receive("error", resp => { console.log(`Unable to join room ${roomId}`, resp.reason) })
 
   channelPlayer.on("game_start", _msg => {

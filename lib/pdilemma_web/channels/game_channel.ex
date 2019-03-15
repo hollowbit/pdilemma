@@ -8,8 +8,8 @@ defmodule PdilemmaWeb.GameChannel do
     case :global.whereis_name(room_id) do
       :undefined -> {:error, %{reason: "This room doesn't exist"}}
       _ ->
-        PdilemmaWeb.Endpoint.broadcast "game:#{room_id}", "player_joined", %{name: name}
-        {:ok, socket}
+        state = Pdilemma.Game.call_player_join(%{name: name}, room_id)
+        {:ok, state, socket}
     end
   end
 

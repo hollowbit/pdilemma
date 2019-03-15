@@ -10,7 +10,7 @@ I'm not done learning yet! Here are some things I want to add to learn more:
 
 - [x] Private rooms: using custom and generated room codes
 
-- [ ] Joining rooms mid-game doesn't cause issues
+- [x] Joining rooms mid-game doesn't cause issues
 
 - [ ] Security: prevent players you don't want from 
 join and interfering with your private room

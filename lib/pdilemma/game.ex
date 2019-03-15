@@ -6,6 +6,10 @@ defmodule Pdilemma.Game do
     GenServer.start_link __MODULE__, %{room_id: room_id}, name: {:global, room_id}
   end
 
+  def call_player_join(msg, room_id) do
+    GenServer.call({:global, room_id}, {:player_join, msg})
+  end
+
   ## Game Server ##
 
   def init(%{room_id: room_id}) do
@@ -14,7 +18,8 @@ defmodule Pdilemma.Game do
     # initialize state
     state = %{
       room_id: room_id,
-      timeout_ref: nil
+      timeout_ref: nil,
+      status: :lobby
     }
     {:ok, state}
   end
@@ -36,6 +41,7 @@ defmodule Pdilemma.Game do
 
     # update state
     {:noreply, Map.merge(new_state, %{
+      status: :ingame,
       round_started: false,
       rounds: [],
       round: 0,
@@ -69,6 +75,10 @@ defmodule Pdilemma.Game do
     # update state to reflect round end
     {:noreply, Map.merge(new_state, %{
       round_started: false,
+      team1_score: team1_score,
+      team2_score: team2_score,
+      team1_totalscore: team1_totalscore,
+      team2_totalscore: team2_totalscore,
       rounds: updated_rounds,
       score: %{t1: team1_totalscore, t2: team2_totalscore},
     })}
@@ -89,7 +99,8 @@ defmodule Pdilemma.Game do
     # update final state of game
     {:noreply, Map.merge(state, %{
       winner: winner,
-      loser: loser
+      loser: loser,
+      status: :lobby
     })}
   end
 
@@ -148,14 +159,50 @@ defmodule Pdilemma.Game do
   end
 
   ## Host ##
+  
+  def handle_call({:player_join, %{name: name}}, _from, state = %{status: :lobby, room_id: room_id}) do
+    # TODO authenticate
 
-  def handle_info(%{event: "player_joined", payload: %{name: name}}, state = %{room_id: room_id}) do
-    # tell the host that a player has joined
+    broadcast_playerjoin name, room_id
+    {:reply, %{}, state}
+  end
+
+  def handle_call({:player_join, %{name: name}}, _from, state = %{status: :ingame, round_started: true, round: round, selection_t1: selection_t1, selection_t2: selection_t2, room_id: room_id}) do
+    # TODO authenticate user before continuing
+
+    round_message = get_round_message(round)
+
+    state_for_player = %{
+      round: round,
+      message: round_message,
+      selection_team1: selection_t1,
+      selection_team2: selection_t2,
+    }
     broadcast_playerjoin name, room_id
 
-    # TODO authenticate player
+    {:reply, state_for_player, state}
+  end
 
-    {:noreply, state}
+  def handle_call({:player_join, %{name: name}}, _from, state = %{status: :ingame, round_started: false, round: round, selection_t1: selection_t1, selection_t2: selection_t2, room_id: room_id}) do
+    # TODO authenticate user before continuing
+
+    team1_score = Map.fetch! state, :team1_score
+    team2_score = Map.fetch! state, :team2_score
+    team1_totalscore = Map.fetch! state, :team1_totalscore
+    team2_totalscore = Map.fetch! state, :team2_totalscore
+
+    state_for_player = %{
+      round: round,
+      team1_score: team1_score,
+      team2_score: team2_score,
+      team1_totalscore: team1_totalscore,
+      team2_totalscore: team2_totalscore,
+      selection_team1: selection_t1,
+      selection_team2: selection_t2,
+    }
+    broadcast_playerjoin name, room_id
+
+    {:reply, state_for_player, state}
   end
 
   ## Private Broadcast Functions ##

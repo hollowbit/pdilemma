@@ -12,10 +12,13 @@ I'm not done learning yet! Here are some things I want to add to learn more:
 
 - [x] Joining rooms mid-game doesn't cause issues
 
-- [ ] Security: prevent players you don't want from 
-join and interfering with your private room
+- [ ] Kicking players: host can kick players when in lobby.
 
-- [ ] Nicer UI: It's very ugly right now (proof of concept)
+- [ ] Spectators: when players join late, they can spectate the game and join in the next round. Spectators can't be kicked.
+
+- [ ] Anti-cheat: only let players see and change their own team's selections and not the other's.
+
+- [ ] Nicer UI: It's very ugly right now (proof of concept for now but it should be more presentable)
 
 ## Try it yourself
 

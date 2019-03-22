@@ -17,6 +17,7 @@ defmodule PdilemmaWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/:room_id", PageController, :game
   end
 
   # Other scopes may use custom stacks.

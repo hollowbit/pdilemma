@@ -1,7 +1,14 @@
 /* This file is for your main application css. */
 
-/*@import "./phoenix.css";*/
+@import "./phoenix.css";
 
 .selected {
   background-color: red;
+}
+
+.alert-container {
+  position: fixed;
+  bottom: 0;
+  right: 20%;
+  left: 20%;
 }

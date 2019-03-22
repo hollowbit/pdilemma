@@ -1,11 +1,7 @@
-<div class="game">
+<div class="lobby">
+
   <h1>Prisoner's Dilemma</h1>
-  <button id="host-game">Host Game</button>
-  <button id="join-game">Join Game</button>
-  <button id="team-button">t1</button>
-  <button id="x" class="selected">X</button>
-  <button id="y">Y</button>
-  <p id="message-box">Messages go here...</p>
-  <p id="time-box">Time Left: 0</p>
-  <button id="start-game">Start Game</button>
+  <input type="text" id="room-id-field" hint="Enter room id..."/>
+  <button id="host-game-button">Host</button>
+  <button id="join-game-button">Join</button>
 </div>

@@ -19,6 +19,8 @@ import startSocket from "./socket"
 //** ui control **//
 
 // close flashes when clicked
-$(".alert").click((e) => {
-  $(event.target).hide();
+$(document).ready(() => {
+  $(".alert").click((e) => {
+    $(event.target).hide();
+  });  
 });

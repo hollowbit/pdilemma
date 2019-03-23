@@ -328,7 +328,7 @@ defmodule Pdilemma.Game do
       r when r in [5, 8, 10] -> 5 * 60 # 5 minutes
       _ -> 60
     end
-    floor time * 0.1
+    #floor time * 0.1
   end
 
   # Gets a message for the given round, if there are special rules

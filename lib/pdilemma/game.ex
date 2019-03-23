@@ -6,6 +6,13 @@ defmodule Pdilemma.Game do
     GenServer.start_link __MODULE__, %{room_id: room_id}, name: {:global, room_id}
   end
 
+  def does_room_exist(room_id) do
+    case :global.whereis_name(room_id) do
+      :undefined -> false
+      _ -> true
+    end
+  end
+
   def call_player_join(msg, room_id) do
     GenServer.call({:global, room_id}, {:player_join, msg})
   end

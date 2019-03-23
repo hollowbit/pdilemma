@@ -14,7 +14,7 @@ import "phoenix_html"
 // Import local files
 //
 // Local files can be imported directly using relative paths, for example:
-import _ from "./socket"
+import startSocket from "./socket"
 
 //** ui control **//
 
@@ -22,4 +22,3 @@ import _ from "./socket"
 $(".alert").click((e) => {
   $(event.target).hide();
 });
-console.log("hey!");

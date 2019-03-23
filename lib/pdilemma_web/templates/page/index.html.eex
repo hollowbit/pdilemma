@@ -4,4 +4,26 @@
   <input type="text" id="room-id-field" hint="Enter room id..."/>
   <button id="host-game-button">Host</button>
   <button id="join-game-button">Join</button>
+
+  <script>
+
+    function getRoomId() {
+      const roomId = $("#room-id-field").val();
+      if (roomId == null) {
+        roomId = $("#room-id-field").hint();
+      }
+      return roomId;
+    }
+
+    $(document).ready(() => {
+      $("#host-game-button").click(() => {
+        window.location.href = "http://localhost:4000/host/" + getRoomId();
+      });
+
+      $("#join-game-button").click(() => {
+        window.location.href = "http://localhost:4000/" + getRoomId();
+      });
+    });
+
+  </script>
 </div>

@@ -18,6 +18,7 @@ defmodule PdilemmaWeb.Router do
 
     get "/", PageController, :index
     get "/:room_id", PageController, :game
+    get "/host/:room_id", PageController, :host
   end
 
   # Other scopes may use custom stacks.

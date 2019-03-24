@@ -17,7 +17,7 @@ defmodule PdilemmaWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    get "/:room_id", PageController, :game
+    get "/:room_id", PageController, :game, is_host: false
     get "/host/:room_id", PageController, :host
   end
 

@@ -5,7 +5,7 @@ defmodule PdilemmaWeb.PageController do
     render(conn, "index.html")
   end
 
-  def game(conn, %{"room_id" => room_id}) do
+  def game(conn, %{"room_id" => room_id, "is_host" => "false"}) do
     case Pdilemma.Game.does_room_exist(room_id) do
       true -> 
               conn
@@ -17,7 +17,7 @@ defmodule PdilemmaWeb.PageController do
     end
   end
 
-  def host(conn, %{"room_id" => room_id}) do
+  def game(conn, %{"room_id" => room_id, "is_host" => "true"}) do
     case Pdilemma.Game.does_room_exist(room_id) do
       true ->
               conn
@@ -28,6 +28,10 @@ defmodule PdilemmaWeb.PageController do
               |> put_flash(:info, "Welcome, host! Start the game when you are ready.")
               |> render("game.html", %{room_id: room_id, is_host: true})
     end
+  end
+
+  def host(conn, %{"room_id" => room_id}) do
+    conn |> redirect(to: PdilemmaWeb.Router.Helpers.page_path(conn, :game, room_id, is_host: true))
   end
 
 end

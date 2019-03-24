@@ -15,13 +15,18 @@
       return roomId;
     }
 
+    function getRootAddress() {
+      const loc = window.location;
+      return `${loc.protocol}//${loc.hostname}:${loc.port}`;
+    }
+
     $(document).ready(() => {
       $("#host-game-button").click(() => {
-        window.location.href = "http://joinmy.party:4000/host/" + getRoomId();
+        window.location.href = getRootAddress() + "/host/" + getRoomId();
       });
 
       $("#join-game-button").click(() => {
-        window.location.href = "http://joinmy.party:4000/" + getRoomId();
+        window.location.href = getRootAddress() + "/" + getRoomId();
       });
     });
 

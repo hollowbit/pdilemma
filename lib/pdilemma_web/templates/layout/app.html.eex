@@ -10,19 +10,23 @@
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
-    <header>
-      <section class="container">
-        <a href="http://phoenixframework.org/" class="phx-logo">
-          <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework Logo"/>
-        </a>
-      </section>
-    </header>
     <div class="alert-container">
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
     </div>
+    <header class="container">
+      <a href="/"><h1>Prisoner's Dilemma</h1></a>
+    </header>
     <main role="main" class="container">
       <%= render @view_module, @view_template, assigns %>
     </main>
+    <footer>
+        <a href="http://phoenixframework.org/" class="phx-logo">
+          <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework"/>
+        </a>
+        <a href="https://elixir-lang.org/" class="elixir-logo">
+          <img src="<%= Routes.static_path(@conn, "/images/elixir.png") %>" alt="Elixir Lang"/>
+        </a>
+    </footer>
   </body>
 </html>

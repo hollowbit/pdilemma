@@ -2,8 +2,8 @@ defmodule Pdilemma.Game do
   use GenServer
   require Logger
 
-  def start_link(%{room_id: room_id}) do
-    GenServer.start_link __MODULE__, %{room_id: room_id}, name: {:global, room_id}
+  def start_link(%{room_id: room_id, host_id: host_id}) do
+    GenServer.start_link __MODULE__, %{room_id: room_id, host_id: host_id}, name: {:global, room_id}
   end
 
   def does_room_exist(room_id) do
@@ -13,18 +13,21 @@ defmodule Pdilemma.Game do
     end
   end
 
-  def call_player_join(msg, room_id) do
-    GenServer.call({:global, room_id}, {:player_join, msg})
+  def call_player_join(room_id, auth_id) do
+    GenServer.call({:global, room_id}, {:player_join, auth_id})
   end
 
   ## Game Server ##
 
-  def init(%{room_id: room_id}) do
+  def init(%{room_id: room_id, host_id: host_id}) do
     PdilemmaWeb.Endpoint.subscribe "game:#{room_id}", []
     
     # initialize state
     state = %{
       room_id: room_id,
+      team1_auth: nil,
+      team2_auth: nil,
+      host_id: host_id,
       timeout_ref: nil,
       status: :lobby
     }
@@ -166,56 +169,38 @@ defmodule Pdilemma.Game do
   end
 
   ## Host ##
+
+  # team 1 join
+  def handle_call({:player_join, auth_id}, _from, state = %{status: :lobby, room_id: room_id, team1_auth: nil}) do
+    broadcast_playerjoin room_id
+    Logger.info "HEY!!!! #{auth_id}"
+    {:reply, {:ok, "t1"}, Map.merge(state, %{
+      team1_auth: auth_id
+    })}
+  end
   
-  def handle_call({:player_join, %{name: name}}, _from, state = %{status: :lobby, room_id: room_id}) do
-    # TODO authenticate
-
-    broadcast_playerjoin name, room_id
-    {:reply, %{}, state}
+  # team 2 join
+  def handle_call({:player_join, auth_id}, _from, state = %{status: :lobby, room_id: room_id, team2_auth: nil}) do
+    broadcast_playerjoin room_id
+    {:reply, {:ok, "t2"}, Map.merge(state, %{
+      team2_auth: auth_id
+    })}
   end
 
-  def handle_call({:player_join, %{name: name}}, _from, state = %{status: :ingame, round_started: true, round: round, selection_t1: selection_t1, selection_t2: selection_t2, room_id: room_id}) do
-    # TODO authenticate user before continuing
-
-    round_message = get_round_message(round)
-
-    state_for_player = %{
-      round: round,
-      message: round_message,
-      selection_team1: selection_t1,
-      selection_team2: selection_t2,
-    }
-    broadcast_playerjoin name, room_id
-
-    {:reply, state_for_player, state}
+  # team 2 already in lobby
+  def handle_call({:player_join, _auth_id}, _form, state = %{status: :lobby}) do
+    {:reply, :error, state}
   end
 
-  def handle_call({:player_join, %{name: name}}, _from, state = %{status: :ingame, round_started: false, round: round, selection_t1: selection_t1, selection_t2: selection_t2, room_id: room_id}) do
-    # TODO authenticate user before continuing
-
-    team1_score = Map.fetch! state, :team1_score
-    team2_score = Map.fetch! state, :team2_score
-    team1_totalscore = Map.fetch! state, :team1_totalscore
-    team2_totalscore = Map.fetch! state, :team2_totalscore
-
-    state_for_player = %{
-      round: round,
-      team1_score: team1_score,
-      team2_score: team2_score,
-      team1_totalscore: team1_totalscore,
-      team2_totalscore: team2_totalscore,
-      selection_team1: selection_t1,
-      selection_team2: selection_t2,
-    }
-    broadcast_playerjoin name, room_id
-
-    {:reply, state_for_player, state}
+  # already in game
+  def handle_call({:player_join, _auth_id}, _from, state = %{status: :ingame}) do
+    {:reply, :error, state}
   end
 
   ## Private Broadcast Functions ##
 
-  defp broadcast_playerjoin(player_name, room_id) do
-    PdilemmaWeb.Endpoint.broadcast! "host:#{room_id}", "player_join", %{player_name: player_name}
+  defp broadcast_playerjoin(room_id) do
+    PdilemmaWeb.Endpoint.broadcast! "host:#{room_id}", "player_join", %{}
   end
 
   defp broadcast_time(time, room_id) do
@@ -329,6 +314,7 @@ defmodule Pdilemma.Game do
       _ -> 60
     end
     #floor time * 0.1
+    time
   end
 
   # Gets a message for the given round, if there are special rules

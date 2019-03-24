@@ -1,18 +1,19 @@
 <div class="game">
-  <h1>Prisoner's Dilemma</h1>
-  <button id="team-button">t1</button>
-  <button id="x" class="selected">X</button>
-  <button id="y">Y</button>
-  <p id="message-box">Messages go here...</p>
-  <p id="time-box">Time Left: 0</p>
-  <button id="start-game" style="display: none;">Start Game</button>
-
   <script>
     const roomId = "<%= @room_id %>";
     const isHost = <%= @is_host %>
+
+    // Change URL to remove "host" prefix, if it's there
+    history.replaceState({}, 'Pdilemma', `/${roomId}`);
 
     $(document).ready(() => {
       window.startSocket(roomId, isHost);
     });
   </script>
+
+  <button id="x" class="selected">X</button>
+  <button id="y">Y</button>
+  <p id="message-box">Messages go here...</p>
+  <p id="time-box">Time Left: 0</p>
+  <button id="start-game" style="display: none;">Start Game</button>
 </div>

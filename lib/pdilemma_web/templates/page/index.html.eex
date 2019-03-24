@@ -1,11 +1,10 @@
 <div class="lobby">
-
-  <h1>Prisoner's Dilemma</h1>
   <input type="text" id="room-id-field" hint="Enter room id..."/>
   <button id="host-game-button">Host</button>
   <button id="join-game-button">Join</button>
 
   <script>
+    history.replaceState({}, 'Pdilemma', `/`);
 
     function getRoomId() {
       const roomId = $("#room-id-field").val();

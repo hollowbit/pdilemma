@@ -3,20 +3,22 @@ defmodule PdilemmaWeb.GameChannel do
 
   ## Channel Joins ##
 
-  def join("player:" <> room_id, msg = %{"name" => name}, socket) do
+  def join("player:" <> room_id, _msg, socket = %{id: socket_id}) do
     # make sure the room exists
     case :global.whereis_name(room_id) do
       :undefined -> {:error, %{reason: "This room doesn't exist"}}
-      _ ->
-        state = Pdilemma.Game.call_player_join(%{name: name}, room_id)
-        {:ok, state, socket}
+      _ -> # try to join room if it exists
+        case Pdilemma.Game.call_player_join(room_id, socket_id) do
+          :error -> {:error, %{reason: "Cannot join room right now"}}
+          {:ok, team} -> {:ok, %{team: team}, socket}
+        end
     end
   end
 
-  def join("host:" <> room_id, _msg, socket) do
-    case Pdilemma.Game.start_link(%{room_id: room_id}) do
-      {:ok, pid} -> {:ok, %{reason: "welcome host"}, socket}
-      {:error, {:already_started, pid}} -> {:error, %{reason: "room id is taken"}}
+  def join("host:" <> room_id, _msg, socket = %{id: socket_id}) do
+    case Pdilemma.Game.start_link(%{room_id: room_id, host_id: socket_id}) do
+      {:ok, _pid} -> {:ok, %{reason: "welcome host"}, socket}
+      {:error, {:already_started, _pid}} -> {:error, %{reason: "room id is taken"}}
     end
   end
 

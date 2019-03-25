@@ -173,7 +173,6 @@ defmodule Pdilemma.Game do
   # team 1 join
   def handle_call({:player_join, auth_id}, _from, state = %{status: :lobby, room_id: room_id, team1_auth: nil}) do
     broadcast_playerjoin room_id
-    Logger.info "HEY!!!! #{auth_id}"
     {:reply, {:ok, "t1"}, Map.merge(state, %{
       team1_auth: auth_id
     })}

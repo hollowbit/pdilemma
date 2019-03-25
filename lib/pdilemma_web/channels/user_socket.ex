@@ -8,8 +8,8 @@ defmodule PdilemmaWeb.UserSocket do
   channel "player:*", PdilemmaWeb.GameChannel
 
   def connect(params, socket, _connect_info) do
-    {:ok, assign(socket, :user_id, params["user_id"])}
+    {:ok, socket}
   end
 
-  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
+  def id(socket), do: "#{UUID.uuid4()}"
 end

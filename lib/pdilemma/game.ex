@@ -172,7 +172,7 @@ defmodule Pdilemma.Game do
 
   # team 1 join
   def handle_call({:player_join, auth_id}, _from, state = %{status: :lobby, room_id: room_id, team1_auth: nil}) do
-    broadcast_playerjoin room_id
+    broadcast_playerjoined room_id, "t1"
     {:reply, {:ok, "t1"}, Map.merge(state, %{
       team1_auth: auth_id
     })}
@@ -180,7 +180,7 @@ defmodule Pdilemma.Game do
   
   # team 2 join
   def handle_call({:player_join, auth_id}, _from, state = %{status: :lobby, room_id: room_id, team2_auth: nil}) do
-    broadcast_playerjoin room_id
+    broadcast_playerjoined room_id, "t2"
     {:reply, {:ok, "t2"}, Map.merge(state, %{
       team2_auth: auth_id
     })}
@@ -198,8 +198,8 @@ defmodule Pdilemma.Game do
 
   ## Private Broadcast Functions ##
 
-  defp broadcast_playerjoin(room_id) do
-    PdilemmaWeb.Endpoint.broadcast! "host:#{room_id}", "player_join", %{}
+  defp broadcast_playerjoined(room_id, team) do
+    PdilemmaWeb.Endpoint.broadcast! "host:#{room_id}", "player_joined", %{team: team}
   end
 
   defp broadcast_time(time, room_id) do

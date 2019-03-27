@@ -1,8 +1,10 @@
-<div class="lobby">
+<div class="lobby container">
   <input type="text" id="room-id-field" hint="Enter room id..."/>
   <button id="host-game-button">Host</button>
   <button id="join-game-button">Join</button>
 
+  <%= render PdilemmaWeb.PageView, "rules.html", assigns %>
+  
   <script>
     history.replaceState({}, 'Pdilemma', `/`);
 
@@ -26,6 +28,22 @@
 
       $("#join-game-button").click(() => {
         window.location.href = getRootAddress() + "/" + getRoomId();
+      });
+      
+
+      let rulesVisible = false;
+      $("#rules-toggle").click(() => {
+        if (rulesVisible) {
+          $(".rules-arrow").removeClass("down");
+          $(".rules-arrow").addClass("right");
+          $(".rules").css("visibility", "hidden");
+        } else {
+          $(".rules-arrow").removeClass("right");
+          $(".rules-arrow").addClass("down");
+          $(".rules").css("visibility", "visible");
+        }
+
+        rulesVisible = !rulesVisible;
       });
     });
 

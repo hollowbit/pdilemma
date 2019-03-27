@@ -8,12 +8,32 @@
 
     $(document).ready(() => {
       window.startSocket(roomId, isHost);
+
+      // show waiting popup
+      if(isHost) {
+        $(".backdrop").css("display", "inline")
+        $("#host-box").css("display", "inline");
+      }
     });
   </script>
 
   <button id="x" class="selected">X</button>
   <button id="y">Y</button>
-  <p id="message-box">Messages go here...</p>
   <p id="time-box">Time Left: 0</p>
-  <button id="start-game" style="display: none;">Start Game</button>
+
+  <p id="round-message"></p>
+
+  <%= render PdilemmaWeb.PageView, "rules.html", assigns %>
+
+  <div class="backdrop" style="display: none;">
+    <div id="info-box" class="popup" style="display: none;">
+      <p id="message-box">Messages go here...</p>
+      <p id="info-box-wait-message" class="popup-footer"></p>
+    </div>
+
+    <div id="host-box" class="popup" style="display: none;">
+      <p id="wait-info">Waiting for someone to join...</p><div id="wait-status" class="wait-pending"></div>
+      <button id="start-game-button" class="popup-footer" disabled>Start Game</button>
+    </div>
+  </div>
 </div>

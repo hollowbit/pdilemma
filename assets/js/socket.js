@@ -10,7 +10,9 @@ window.startSocket = (roomId, isHost) => {
   let yButton = document.getElementById("y");
   let messageBox = document.getElementById("message-box");
   let timeBox = document.getElementById("time-box");
-  let startgameButton = document.getElementById("start-game");
+  let startgameButton = document.getElementById("start-game-button");
+  const waitInfo = $("#wait-info");
+  const waitStatus = $("#wait-status");
 
   let team = null;
 
@@ -77,9 +79,14 @@ window.startSocket = (roomId, isHost) => {
         joinAsPlayer();
       })
       .receive("error", resp => { console.log(`Could not create room ${roomId}: `, resp.reason); });
-
-    channelHost.on("player_joined", _msg => {
-      console.log(`Player joined!`);
+    
+    channelHost.on("player_joined", msg => {
+      if (msg.team == "t2") {
+        waitInfo.text("Player joined.");
+        waitStatus.removeClass("wait-pending");
+        waitStatus.addClass("wait-done");
+        startgameButton.disabled = false;
+      }
     });
 
     startgameButton.onclick = (event) => {

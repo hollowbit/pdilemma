@@ -25,7 +25,7 @@ defmodule PdilemmaWeb.PageController do
               |> render("game.html", %{room_id: room_id, is_host: false})
       false -> # room doesn't exist, start as host
               conn
-              |> put_flash(:info, "Welcome, host! Start the game when you are ready.")
+              |> put_flash(:info, "Welcome, host!")
               |> render("game.html", %{room_id: room_id, is_host: true})
     end
   end

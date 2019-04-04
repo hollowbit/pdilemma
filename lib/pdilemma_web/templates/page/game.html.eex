@@ -19,7 +19,7 @@
 
   <button id="x" class="selected">X</button>
   <button id="y">Y</button>
-  <p id="time-box">Time Left: 0</p>
+  <p>Time Left: <span id="time-box"></span></p>
 
   <p id="round-message"></p>
 
@@ -29,6 +29,14 @@
     <div id="info-box" class="popup" style="display: none;">
       <p id="message-box">Messages go here...</p>
       <p id="info-box-wait-message" class="popup-footer"></p>
+    </div>
+
+    <div id="round-end-box" class="popup", style="display: none;">
+      <p id="score-change" class="good"></p>
+      <p id="round-end-message"></p>
+      <p id="new-total"></p>
+      <p id="their-new-total"></p>
+      <p>Next round will begin shortly...</p>
     </div>
 
     <div id="host-box" class="popup" style="display: none;">

@@ -100,7 +100,7 @@ defmodule Pdilemma.Game do
     { winner, loser, wscore, lscore } = cond do
       t1_score > t2_score -> {:t1, :t2, t1_score, t2_score}
       t2_score > t1_score -> {:t2, :t1, t2_score, t1_score}
-      true -> {nil, nil, nil, nil} # Nobody won or lost
+      true -> {nil, nil, t1_score, t2_score} # Nobody won or lost
     end
 
     # broadcast game result
@@ -312,8 +312,8 @@ defmodule Pdilemma.Game do
       r when r in [5, 8, 10] -> 5 * 60 # 5 minutes
       _ -> 60
     end
-    #floor time * 0.1
-    time
+    floor time * 0.1
+    #time
   end
 
   # Gets a message for the given round, if there are special rules

@@ -6,6 +6,14 @@
   background-color: red;
 }
 
+.good {
+  color: green;
+}
+
+.bad {
+  color: red;
+}
+
 .alert-container {
   position: fixed;
   bottom: 0;

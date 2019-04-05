@@ -43,8 +43,8 @@ window.startSocket = (roomId, isHost) => {
     $("#score-change").removeClass(scoreChange > 0 ? "bad" : "good");
     $("#round-end-message").text(roundMessage);
     $("#new-total").text(`Your new total: ${newTotal}`);
-    $("#their-new-total").text(`Their new total: ${newOtherTotal}`);
-    timeBox = $("#round-end-timer");
+    $("#their-new-total").text(`Their new total: ${theirNewTotal}`);
+    //timeBox = $("#round-end-timer");
   }
 
   const joinAsPlayer = () => {

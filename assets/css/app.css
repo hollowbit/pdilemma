@@ -6,6 +6,10 @@
   background-color: red;
 }
 
+#score-change {
+  font-size: 4em;
+}
+
 .good {
   color: green;
 }

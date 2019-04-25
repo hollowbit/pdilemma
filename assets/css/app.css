@@ -3,7 +3,7 @@
 @import "./phoenix.css";
 
 .selected {
-  background-color: red;
+  border: 15px solid black;
 }
 
 #score-change {
@@ -16,6 +16,17 @@
 
 .bad {
   color: red;
+}
+
+.selection {
+  width: 45%;
+  height: 300px;
+  font-size: 3em;
+}
+
+.selection-right {
+  float: right;
+  background-color: red;
 }
 
 .alert-container {

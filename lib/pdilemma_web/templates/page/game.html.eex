@@ -17,8 +17,8 @@
     });
   </script>
 
-  <button id="x" class="selected">X</button>
-  <button id="y">Y</button>
+  <button id="x" class="selected selection">X</button>
+  <button id="y" class="selection selection-right">Y</button>
   <p>Time Left: <span id="time-box"></span></p>
 
   <p id="round-message"></p>

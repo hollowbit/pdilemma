@@ -18,7 +18,7 @@ I'm not done learning yet! Here are some things I want to add to learn more:
 
 - [ ] Anti-cheat: only let players see and change their own team's selections and not the other's.
 
-- [ ] Nicer UI: It's very ugly right now (proof of concept for now but it should be more presentable)
+- [x] Nicer UI: It's very ugly right now (proof of concept for now but it should be more presentable)
 
 ## Try it yourself
 

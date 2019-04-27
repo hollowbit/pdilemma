@@ -2,15 +2,11 @@
 
 This is a basic Prisoner's Dilemma game, all played online with multiple clients! I started this project to learn how Elixir and Phoenix work.
 
-This repository is more of a sandbox so the code is not very nice or well designed right now. I plan on making a better designed version in the future.
+This repository is more of a sandbox so the code is not very nice or well designed. I plan on making a better designed version in the future in another project. This project is just to prototype an idea.
 
-## ToDo List
+## Missing Features
 
-I'm not done learning yet! Here are some things I want to add to learn more:
-
-- [x] Private rooms: using custom and generated room codes
-
-- [x] Joining rooms mid-game doesn't cause issues
+Here are some things that have not been implemented, but can be to make it better:
 
 - [ ] Kicking players: host can kick players when in lobby.
 
@@ -18,14 +14,13 @@ I'm not done learning yet! Here are some things I want to add to learn more:
 
 - [ ] Anti-cheat: only let players see and change their own team's selections and not the other's.
 
-- [x] Nicer UI: It's very ugly right now (proof of concept for now but it should be more presentable)
-
 ## Try it yourself
 
 To start your Phoenix server:
 
-  * Install dependencies with `mix deps.get`
-  * Install Node.js dependencies with `cd assets && npm install`
-  * Start Phoenix endpoint with `mix phx.server`
+  * Install dependencies: `mix deps.get`
+  * Install Node.js dependencies: `cd assets && npm install`
+  * Go back to root of project: `cd ..`
+  * Start Phoenix endpoint: `mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
